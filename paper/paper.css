@@ -1,0 +1,181 @@
+@page {
+  size: A4;
+  margin: 22mm 20mm 24mm 20mm;
+  @bottom-center {
+    content: counter(page);
+    color: #666;
+    font-size: 9pt;
+  }
+}
+
+html {
+  color: #1a1a1a;
+  background: white;
+  font-family: "DejaVu Serif", "Liberation Serif", serif;
+  font-size: 10.3pt;
+  line-height: 1.43;
+}
+
+body {
+  max-width: 180mm;
+  margin: 0 auto;
+}
+
+#title-block-header {
+  text-align: center;
+  margin: 25mm 0 16mm;
+  page-break-after: avoid;
+}
+
+h1.title {
+  font-size: 25pt;
+  line-height: 1.12;
+  margin-bottom: 7mm;
+  color: #11233b;
+}
+
+p.subtitle {
+  font-size: 13pt;
+  color: #45566d;
+  margin: 0 auto 8mm;
+  max-width: 145mm;
+}
+
+p.author, p.date {
+  font-size: 10.5pt;
+  color: #555;
+}
+
+h1, h2, h3 {
+  color: #17365d;
+  page-break-after: avoid;
+}
+
+h1 {
+  font-size: 17pt;
+  margin-top: 9mm;
+  border-bottom: 0.5pt solid #9aabc0;
+  padding-bottom: 1.5mm;
+}
+
+h2 {
+  font-size: 13.2pt;
+  margin-top: 6mm;
+}
+
+h3 {
+  font-size: 11.2pt;
+  margin-top: 4mm;
+}
+
+p {
+  text-align: justify;
+  hyphens: auto;
+  orphans: 3;
+  widows: 3;
+}
+
+blockquote {
+  margin: 4mm 8mm;
+  padding: 2mm 4mm;
+  border-left: 2pt solid #7890ad;
+  background: #f5f7fa;
+}
+
+table {
+  border-collapse: collapse;
+  margin: 4mm auto 6mm;
+  font-size: 9.1pt;
+  page-break-inside: avoid;
+}
+
+th, td {
+  border: 0.5pt solid #9aa6b3;
+  padding: 1.5mm 2.5mm;
+  vertical-align: top;
+}
+
+th {
+  background: #eaf0f6;
+  color: #17365d;
+}
+
+code {
+  font-family: "DejaVu Sans Mono", monospace;
+  font-size: 0.9em;
+  background: #f3f3f3;
+  padding: 0 0.5mm;
+}
+
+pre {
+  background: #f3f3f3;
+  padding: 3mm;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  font-size: 8.5pt;
+}
+
+math[display="block"] {
+  margin: 3mm auto;
+  page-break-inside: avoid;
+}
+
+.abstract {
+  margin: 8mm 12mm 12mm;
+  font-size: 9.7pt;
+}
+
+nav#TOC {
+  page-break-before: always;
+  page-break-after: always;
+}
+
+#toc-title {
+  margin: 0 0 7mm;
+  color: #17365d;
+  font-size: 20pt;
+  font-weight: bold;
+  border-bottom: 0.5pt solid #9aabc0;
+  padding-bottom: 1.5mm;
+}
+
+nav#TOC ul {
+  display: block;
+  margin: 0;
+  padding-left: 7mm;
+}
+
+nav#TOC > ul {
+  padding-left: 0;
+}
+
+nav#TOC li {
+  display: list-item;
+  margin: 0 0 1.2mm;
+}
+
+nav#TOC > ul > li {
+  list-style-position: inside;
+}
+
+nav#TOC li li {
+  margin-left: 5mm;
+  font-size: 0.94em;
+}
+
+#refs {
+  font-size: 9pt;
+}
+
+a {
+  color: #1b5a91;
+  text-decoration: none;
+}
+
+ul, ol {
+  padding-left: 7mm;
+}
+
+li {
+  margin-bottom: 1mm;
+}

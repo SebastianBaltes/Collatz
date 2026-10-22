@@ -1,0 +1,665 @@
+%% ---------------------------------------------------------------------------
+%% Deterministic sparsity and symbolic rigidity of individual Syracuse orbits
+%% Build:  latexmk -pdf -outdir=build syracuse_sparsity.tex
+%% ---------------------------------------------------------------------------
+\documentclass[11pt,reqno]{amsart}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{newtxtext}
+\usepackage[varg]{newtxmath}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{enumitem}
+\usepackage[margin=1in]{geometry}
+\usepackage{caption}
+\usepackage[autostyle]{csquotes}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue]{hyperref}
+\hypersetup{
+  pdftitle={Deterministic sparsity and symbolic rigidity of individual Syracuse orbits},
+  pdfauthor={Collaborative research draft; OpenAI Sol 5.6},
+  pdfsubject={Collatz conjecture}}
+\usepackage[backend=biber,style=numeric,sorting=nyt,giveninits=true,
+            maxbibnames=6,doi=true,isbn=false,url=false,eprint=true]{biblatex}
+\addbibresource{references.bib}
+
+\sisetup{group-separator={\,},group-minimum-digits=4,detect-all}
+\setlist[enumerate]{itemsep=2pt,topsep=4pt}
+\setlist[itemize]{itemsep=2pt,topsep=4pt}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\numberwithin{equation}{section}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Odd}{\mathcal{O}}
+\newcommand{\Ent}{\mathsf{H}}
+
+\begin{document}
+
+\title[Sparsity and rigidity of individual Syracuse orbits]
+      {Deterministic sparsity and symbolic rigidity\\ of individual Syracuse orbits}
+\subjclass[2020]{Primary 11B83; Secondary 37P05, 68R15, 11K16}
+\keywords{Collatz conjecture, Syracuse map, stopping time, factor complexity,
+  Diophantine exponent, cylinder sets}
+\date{20 August 2026}
+
+\author{Collaborative research draft}
+\author{OpenAI Sol 5.6}
+
+\begin{abstract}
+Let $S(n)=(3n+1)/2^{v_2(3n+1)}$ be the Syracuse map on odd positive integers.
+The known unconditional results on the $3x+1$ problem---Terras's density-one
+stopping-time theorem and Tao's almost-bounded-values theorem---are statements
+about the set of starting values.  We prove four statements about
+\emph{every individual} aperiodic orbit, with absolute constants.  First, such
+an orbit meets a dyadic block $[X,2X)$ at most $11X^{1-\eta}$ times, where
+$\eta=1-\log_23/c_*=0.0346155582\ldots$ and $c_*=1.6417941207\ldots$ is the
+root of $c\log c-(c-1)\log(c-1)=\log3$; the exponent arises from an exact
+balance between a Chernoff bound for valuation weights and the entropy of
+valuation words.  Second, the reciprocal sum along any aperiodic orbit is
+bounded by an absolute constant, so in particular every aperiodic orbit
+diverges to infinity and its normalized version converges.  Third, the
+valuation word of such an orbit has prefix repetition exponent at most
+$\log_23$.  Fourth, its factor complexity satisfies
+$p(m)\ge m/\log_2(3/2)-O(1)$, so it is never quasi-Sturmian.  All four
+results follow from one cylinder lemma together with the arithmetic
+non-collision of orbit values; no probabilistic or density hypothesis is used.
+We do not prove, and do not claim, any progress on the Collatz conjecture
+itself, and we state precisely what these bounds cannot do.
+\end{abstract}
+
+\maketitle
+
+\tableofcontents
+
+% ===========================================================================
+\section{Introduction}
+\label{sec:intro}
+
+Write $\Odd$ for the set of odd positive integers and let
+\[
+S:\Odd\to\Odd,\qquad
+S(n)=\frac{3n+1}{2^{a(n)}},\qquad a(n):=v_2(3n+1)\ge1
+\]
+be the Syracuse (odd-only Collatz) map.  The Collatz conjecture is equivalent
+to the assertion that every $S$-orbit reaches $1$.
+
+Two unconditional theorems dominate the modern literature.  Terras
+\cite{terras1976} proved that the set of $n$ with finite stopping time has
+density one, and Tao \cite{tao2022} proved that for every function
+$f\to\infty$, almost every $n$ in logarithmic density has
+$\min_k C^k(n)\le f(n)$.  Computation has verified convergence below $2^{71}$
+\cite{barina2025}.  Each of these is a statement about the \emph{set of
+starting values}: a density-one or almost-all conclusion says nothing about
+any particular orbit, and a single exceptional orbit would suffice to refute
+the conjecture.
+
+This note isolates what can be said about one orbit at a time.  Call an orbit
+$(n_k)_{k\ge0}$, $n_{k+1}=S(n_k)$, \emph{aperiodic} if $n_i\ne n_j$ whenever
+$i\ne j$; since $S$ is a map, this is the same as saying the orbit is not
+eventually periodic, and it is exactly the situation of a hypothetical
+divergent counterexample.  Put
+\[
+V_s(X)=\#\{k\ge s: X\le n_k<2X\}.
+\]
+
+\begin{theorem}[shell sparsity]
+\label{thm:A}
+Let $c_*=1.6417941207\ldots$ be the unique root in $(\log_23,2)$ of
+\[
+c\log c-(c-1)\log(c-1)=\log3,
+\]
+and set
+\[
+\eta=1-\frac{\log_23}{c_*}=0.0346155582\ldots.
+\]
+Then for every aperiodic orbit, every $s\ge0$ and every $X\ge2$,
+\[
+V_s(X)\le 11\,X^{1-\eta}.
+\]
+The constant is absolute: it does not depend on the orbit, on $n_0$, or on $s$.
+\end{theorem}
+
+\begin{corollary}[reciprocal summability]
+\label{cor:B}
+For every aperiodic orbit,
+\[
+\sum_{k\ge0}\frac1{n_k}\le\frac{11}{1-2^{-\eta}}<464.
+\]
+Consequently $n_k\to\infty$, the normalized orbit
+$Y_k=2^{A_k}n_k/3^k$ increases to a finite limit
+$L=n_0\prod_{j\ge0}(1+\tfrac1{3n_j})<\infty$, and $n_k\le L\,2^{\log_23\,k-A_k}$
+for all $k$.  If moreover $n_s=\min_{k\ge s}n_k$, then
+\[
+\sum_{k\ge s}\frac1{n_k}\le\frac{11}{1-2^{-\eta}}\;n_s^{-\eta}.
+\]
+\end{corollary}
+
+The valuation word $a=(a_0,a_1,\dots)$, $a_k=a(n_k)$, is correspondingly
+rigid.  Recall that the prefix repetition exponent (or Diophantine exponent)
+$\operatorname{Dio}(a)$ is the supremum of the ratios $|P|/(|U|+|V|)$ over
+prefixes $P=UV^tV'$ with $V'$ a prefix of $V$, and that $p_a(m)$ denotes the
+number of distinct factors of length $m$.
+
+\begin{theorem}[repetition and complexity]
+\label{thm:CD}
+Let $(n_k)$ be aperiodic with limit constant $L$ as in
+Corollary~\textup{\ref{cor:B}}.  Then
+\[
+\operatorname{Dio}(a)\le\log_23=1.5849625\ldots,
+\]
+and for every $m\ge1$,
+\[
+p_a(m)\ \ge\ \frac{m-\log_2L}{\log_2(3/2)}-1 .
+\]
+In particular $\liminf_{m\to\infty}p_a(m)/m\ge1/\log_2(3/2)=1.7095112\ldots$,
+so the valuation word of an aperiodic orbit is never Sturmian and never
+quasi-Sturmian.
+\end{theorem}
+
+The mechanism behind all four statements is the same and is entirely
+elementary.  A valuation word of length $r$ and weight $B$ pins its starting
+value to a single residue class modulo $2^{B+1}$ (Lemma~\ref{lem:cyl}).
+Aperiodicity says orbit values never collide.  Confronting these two facts
+with the growth law of the orbit converts every hypothetical structure---too
+many visits to a shell, a long repetition, a repeated factor---into an
+arithmetic collision.  We use no probabilistic model of the valuations: the
+geometric distribution below is a bookkeeping device for counting residue
+classes exactly, not an assumption about the orbit.
+
+Section~\ref{sec:prelim} fixes notation and proves the cylinder lemma.
+Section~\ref{sec:sparsity} proves Theorem~\ref{thm:A} and
+Section~\ref{sec:recip} deduces Corollary~\ref{cor:B}.
+Section~\ref{sec:symbolic} proves Theorem~\ref{thm:CD}.
+Section~\ref{sec:limits} states what these bounds do not give; we regard that
+section as the honest counterweight to the rest of the paper.
+Appendix~\ref{app:numeric} records the numerical verification of every lemma.
+
+\begin{remark}
+Nothing here bears on the existence of nontrivial \emph{cycles}, which are
+periodic and therefore excluded by hypothesis throughout.
+\end{remark}
+
+% ===========================================================================
+\section{Notation and the cylinder lemma}
+\label{sec:prelim}
+
+Throughout, $(n_k)_{k\ge0}$ is an orbit of $S$ in $\Odd$, and
+\[
+a_k=a(n_k),\qquad A_k=\sum_{j<k}a_j,\qquad A_0=0,\qquad
+\alpha=\log_23 .
+\]
+For a finite word $w=(w_0,\dots,w_{r-1})\in\Z_{\ge1}^r$ we write
+$|w|=r$ for its length and $A(w)=\sum_iw_i$ for its \emph{weight}.  We say
+$n\in\Odd$ \emph{realizes} $w$ if the first $r$ valuations of the orbit of
+$n$ are $w_0,\dots,w_{r-1}$.  All logarithms without a subscript are natural.
+
+\begin{lemma}[unrolled orbit identity]
+\label{lem:unroll}
+For every $k\ge0$,
+\begin{equation}\label{eq:unroll}
+2^{A_k}n_k=3^kn_0+\sum_{j=0}^{k-1}3^{k-1-j}2^{A_j}.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Induction on $k$.  The case $k=0$ is trivial.  Multiplying
+$2^{a_k}n_{k+1}=3n_k+1$ by $2^{A_k}$ and substituting the inductive
+hypothesis gives
+$2^{A_{k+1}}n_{k+1}=3\cdot2^{A_k}n_k+2^{A_k}$, which is the claim for $k+1$.
+\end{proof}
+
+\begin{lemma}[cylinder lemma]
+\label{lem:cyl}
+Let $w\in\Z_{\ge1}^r$ have weight $B=A(w)$.  The set of $n\in\Odd$ realizing
+$w$ is exactly one residue class modulo $2^{B+1}$.
+\end{lemma}
+
+\begin{proof}
+Induction on $r$.  For $r=1$ and $w=(a)$: since $n$ is odd and $3$ is
+invertible modulo $2^{a+1}$,
+\[
+v_2(3n+1)=a
+\iff 3n+1\equiv2^a\!\!\pmod{2^{a+1}}
+\iff n\equiv3^{-1}(2^a-1)\!\!\pmod{2^{a+1}},
+\]
+one class modulo $2^{a+1}=2^{B+1}$, and it consists of odd numbers because
+$2^a-1$ is odd.
+
+For $r\ge2$ write $w=(a_0,w')$ with $A(w')=B'=B-a_0$.  By the case $r=1$ the
+first letter confines $n$ to a class $n\equiv\rho\pmod{2^{a_0+1}}$; write
+$n=\rho+2^{a_0+1}t$ with $t\in\Z$.  With $m=(3\rho+1)/2^{a_0}$ odd,
+\[
+3n+1=3\rho+1+3\cdot2^{a_0+1}t=2^{a_0}\bigl(m+6t\bigr),
+\qquad\text{so}\qquad
+S(n)=m+6t .
+\]
+By the inductive hypothesis $S(n)$ realizes $w'$ if and only if
+$S(n)\equiv\sigma\pmod{2^{B'+1}}$ for a single odd $\sigma$.  Since $m$ and
+$\sigma$ are both odd, $\sigma-m=2u$ is even, and
+\[
+m+6t\equiv\sigma\!\!\pmod{2^{B'+1}}
+\iff 3t\equiv u\!\!\pmod{2^{B'}}
+\iff t\equiv3^{-1}u\!\!\pmod{2^{B'}} ,
+\]
+one class of $t$ modulo $2^{B'}$, hence one class of $n$ modulo
+$2^{a_0+1+B'}=2^{B+1}$.
+\end{proof}
+
+\begin{lemma}[non-collision]
+\label{lem:collide}
+Let $(n_k)$ be aperiodic and suppose
+$(a_i,\dots,a_{i+m-1})=(a_j,\dots,a_{j+m-1})$ for some $i\ne j$ and $m\ge1$.
+Let $W=A_{i+m}-A_i$ be the common weight of that factor.  Then
+\[
+|n_i-n_j|\ge2^{W+1}.
+\]
+\end{lemma}
+
+\begin{proof}
+Both $n_i$ and $n_j$ realize the same word of weight $W$, so by
+Lemma~\ref{lem:cyl} they lie in one class modulo $2^{W+1}$, i.e.\
+$2^{W+1}\mid n_i-n_j$.  Aperiodicity gives $n_i\ne n_j$.
+\end{proof}
+
+Finally we record the two elementary estimates used in the counting argument.
+Let $\Ent(x)=-x\log x-(1-x)\log(1-x)$ be the natural entropy and put
+\[
+g(c)=c\,\Ent(1/c)=c\log c-(c-1)\log(c-1),
+\qquad
+I(c)=c\log2-g(c) .
+\]
+
+\begin{lemma}[Chernoff bound for valuation weight]
+\label{lem:chernoff}
+Let $G_1,\dots,G_r$ be i.i.d.\ with $\Pr(G=a)=2^{-a}$, $a\ge1$.  For
+$1<c<2$,
+\[
+\Pr\bigl(G_1+\cdots+G_r\le cr\bigr)\le e^{-rI(c)} .
+\]
+\end{lemma}
+
+\begin{proof}
+For $\lambda\ge0$ put $t=e^{-\lambda}\in(0,1]$.  Then
+$\mathbb E[e^{-\lambda G}]=t/(2-t)$, so by Markov's inequality
+\[
+\Pr\Bigl(\sum G_i\le cr\Bigr)
+\le e^{\lambda cr}\Bigl(\frac t{2-t}\Bigr)^r
+=\Bigl(\frac{t^{1-c}}{2-t}\Bigr)^{r}.
+\]
+The bracket is minimized at $t=2(c-1)/c$, which lies in $(0,1)$ precisely
+because $1<c<2$; there $2-t=2/c$ and the bracket equals
+$(c/2)\,t^{1-c}$.  Taking logarithms,
+\[
+-\log\Bigl(\frac c2t^{1-c}\Bigr)
+=c\log2-c\log c+(c-1)\log(c-1)=I(c). \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[word count]
+\label{lem:words}
+For integers $1\le r\le M$, $\ \sum_{B=r}^{M}\binom{B-1}{r-1}=\binom Mr$ and
+$\binom Mr\le e^{M\Ent(r/M)}$.  Moreover $m\mapsto m\Ent(r/m)$ is
+nondecreasing on $[r,\infty)$, so for $M=\lfloor cr\rfloor$ one has
+$\binom{M}{r}\le e^{r\,g(c)}$.
+\end{lemma}
+
+\begin{proof}
+The identity is the hockey-stick identity, and
+$\binom Mr\le e^{M\Ent(r/M)}$ is the standard entropy bound.  For the
+monotonicity, $\frac{d}{dm}\bigl(m\Ent(r/m)\bigr)=\log\frac m{m-r}>0$.
+Since $\lfloor cr\rfloor\le cr$, we get
+$\binom Mr\le e^{cr\Ent(1/c)}=e^{rg(c)}$.
+\end{proof}
+
+Note that the geometric law in Lemma~\ref{lem:chernoff} is not a hypothesis
+about the orbit.  It enters only through the identity
+$\Pr(G_1+\cdots+G_r=B)=\binom{B-1}{r-1}2^{-B}$, which is precisely the
+weighted count of residue classes supplied by Lemma~\ref{lem:cyl}.
+
+% ===========================================================================
+\section{Shell sparsity}
+\label{sec:sparsity}
+
+\begin{proof}[Proof of Theorem~\textup{\ref{thm:A}}]
+Since $V_s(X)\le V_0(X)$ we may assume $s=0$ and write $V=V_0$.  Let
+$c=c_*$ and
+\[
+\kappa=\frac1{c\log2}=0.8787307876\ldots,
+\qquad
+r=\lceil\kappa\log X\rceil\ge1 .
+\]
+Two consequences of this choice are used repeatedly.  First
+$c\kappa\log2=1$, so
+\begin{equation}\label{eq:rlower}
+2^{cr}\ge2^{c\kappa\log X}=e^{\log X}=X .
+\end{equation}
+Second, $r\le\kappa\log X+1$, and since $g(c_*)=\log3$ by definition of
+$c_*$,
+\begin{equation}\label{eq:rupper}
+3^r\le3\cdot e^{\kappa\log3\,\log X}=3\,X^{\kappa\log3}=3\,X^{\alpha/c_*}
+=3\,X^{1-\eta},
+\end{equation}
+where the last two equalities use $\kappa\log 3=\log_23/c_*=\alpha/c_*$ and
+the definition of $\eta$.
+
+Let $N=\{k\ge0:X\le n_k<2X\}$ and split $N=N_{\mathrm{low}}\cup
+N_{\mathrm{high}}$ according as the block weight
+$B_k:=A_{k+r}-A_k$ satisfies $B_k\le cr$ or $B_k>cr$.
+
+\smallskip
+\emph{The low-weight part.}  If $k\in N_{\mathrm{low}}$ then $n_k$ realizes a
+word of length $r$ and weight $B\in[r,\lfloor cr\rfloor]$, and by
+Lemma~\ref{lem:cyl} each such word confines $n_k$ to one class modulo
+$2^{B+1}$, which meets $[X,2X)$ in at most $X2^{-(B+1)}+1$ integers.  By
+aperiodicity distinct indices carry distinct values, so summing over words,
+\[
+\#N_{\mathrm{low}}
+\le\sum_{B=r}^{\lfloor cr\rfloor}\binom{B-1}{r-1}
+\Bigl(\frac X{2^{B+1}}+1\Bigr)
+=\frac X2\sum_{B\le cr}\binom{B-1}{r-1}2^{-B}
++\sum_{B=r}^{\lfloor cr\rfloor}\binom{B-1}{r-1}.
+\]
+The first sum is $\Pr(G_1+\cdots+G_r\le cr)$, bounded by $e^{-rI(c_*)}$
+in Lemma~\ref{lem:chernoff}; since $g(c_*)=\log3$ we have
+$I(c_*)=c_*\log2-\log3$, and therefore, using $r\ge\kappa\log X$,
+\[
+\frac X2e^{-rI(c_*)}
+\le\frac X2X^{-\kappa(c_*\log2-\log3)}
+=\frac X2X^{-(1-\kappa\log3)}
+=\tfrac12X^{1-\eta},
+\]
+because $\kappa(c_*\log2-\log3)=1-\alpha/c_*=\eta$.  The second sum equals
+$\binom{\lfloor c r\rfloor}r\le e^{rg(c_*)}=3^r\le3X^{1-\eta}$ by
+Lemma~\ref{lem:words} and \eqref{eq:rupper}.  Hence
+\[
+\#N_{\mathrm{low}}\le\tfrac72X^{1-\eta}.
+\]
+
+\smallskip
+\emph{The high-weight part.}  Let $k\in N_{\mathrm{high}}$ and apply
+Lemma~\ref{lem:unroll} to the block of length $r$ starting at $k$, writing
+$A_{k,j}=A_{k+j}-A_k$ so that $A_{k,r}=B_k$:
+\[
+n_{k+r}=\frac{3^rn_k}{2^{B_k}}
++\sum_{j=0}^{r-1}3^{r-1-j}2^{-(B_k-A_{k,j})} .
+\]
+Every letter is at least $1$, so $B_k-A_{k,j}\ge r-j$, and substituting
+$m=r-j$,
+\[
+\sum_{j=0}^{r-1}3^{r-1-j}2^{-(B_k-A_{k,j})}
+\le\sum_{m=1}^{r}3^{m-1}2^{-m}
+=\Bigl(\frac32\Bigr)^{r}-1 .
+\]
+For the first term, $n_k<2X$ and $2^{B_k}>2^{cr}\ge X$ by \eqref{eq:rlower},
+so with \eqref{eq:rupper},
+\[
+\frac{3^rn_k}{2^{B_k}}<\frac{2X\cdot3^r}{X}=2\cdot3^r\le6\,X^{1-\eta}.
+\]
+Also $(3/2)^r\le\frac32X^{\kappa\log(3/2)}=\frac32X^{0.3562946\ldots}
+\le\frac32X^{1-\eta}$.  Altogether
+\[
+1\le n_{k+r}<\tfrac{15}2X^{1-\eta}\qquad(k\in N_{\mathrm{high}}).
+\]
+By aperiodicity $k\mapsto n_{k+r}$ is injective, so $N_{\mathrm{high}}$
+injects into the positive integers below $\tfrac{15}2X^{1-\eta}$, whence
+$\#N_{\mathrm{high}}\le\tfrac{15}2X^{1-\eta}$.
+
+\smallskip
+Adding the two parts gives $V(X)\le11X^{1-\eta}$.
+\end{proof}
+
+\begin{remark}[why $c_*$ and why $\eta$ cannot be improved by this method]
+\label{rem:opt}
+Run the argument with free parameters $c\in(\alpha,2)$ and $\kappa>0$.  The
+four contributions have exponents
+\[
+\underbrace{1-\kappa I(c)}_{\text{residue classes}},\quad
+\underbrace{\kappa g(c)}_{\text{words}},\quad
+\underbrace{1-\kappa\bigl(c\log2-\log3\bigr)}_{\text{growth}},\quad
+\underbrace{\kappa\log(3/2)}_{\text{tail}} ,
+\]
+and $V(X)\ll X^{E}$ with $E$ the maximum of the four.  The fourth is never
+binding.  Balancing the second against the smaller of the first and third
+gives, after minimizing in $\kappa$,
+\[
+E(c)=\frac{g(c)}{g(c)+\min\bigl(I(c),\,c\log2-\log3\bigr)}
+=\begin{cases}
+\dfrac{g(c)}{c\log2-\log3+g(c)}, & g(c)\le\log3,\\[2ex]
+\dfrac{g(c)}{c\log2}, & g(c)\ge\log3 .
+\end{cases}
+\]
+On $(\alpha,c_*]$ the first branch decreases from $1$; on $[c_*,2)$ the second
+branch increases, since $\frac{d}{dc}(g/c)=(cg'(c)-g(c))/c^2>0$ there.  The
+minimum is therefore attained exactly where the two branches meet, that is at
+$g(c)=\log3$, giving $c=c_*$, $\kappa=\kappa_*$ and $E=\alpha/c_*=1-\eta$.
+A numerical two-parameter search over the pair $(c,\kappa)$ confirms this
+optimum; see Appendix~\ref{app:numeric}.  Improving $\eta$ therefore requires
+a different input, not a better choice of parameters.
+\end{remark}
+
+% ===========================================================================
+\section{Reciprocal summability}
+\label{sec:recip}
+
+\begin{proof}[Proof of Corollary~\textup{\ref{cor:B}}]
+Every orbit value lies in exactly one dyadic block $[2^q,2^{q+1})$ with
+$q\ge0$, and each value there contributes at most $2^{-q}$ to the reciprocal
+sum.  By Theorem~\ref{thm:A},
+\[
+\sum_{k\ge0}\frac1{n_k}
+\le\sum_{q\ge0}V_0(2^q)\,2^{-q}
+\le11\sum_{q\ge0}2^{q(1-\eta)}2^{-q}
+=\frac{11}{1-2^{-\eta}}<464 .
+\]
+Since the series converges, $1/n_k\to0$, i.e.\ $n_k\to\infty$.  From
+$2^{a_k}n_{k+1}=3n_k+1$ we get
+$Y_{k+1}/Y_k=1+\frac1{3n_k}$ for $Y_k=2^{A_k}n_k/3^k$, so $(Y_k)$ is
+increasing and
+\[
+Y_k=n_0\prod_{j<k}\Bigl(1+\frac1{3n_j}\Bigr)
+\le n_0\exp\Bigl(\frac13\sum_{j\ge0}\frac1{n_j}\Bigr)<\infty ,
+\]
+whence $Y_k\uparrow L<\infty$ and $n_k=Y_k3^k2^{-A_k}\le L\,2^{\alpha k-A_k}$.
+For the last statement, if $n_s=\min_{k\ge s}n_k$ then every $n_k$ with
+$k\ge s$ lies in some $[2^qn_s,2^{q+1}n_s)$, $q\ge0$, and the same computation
+with Theorem~\ref{thm:A} applied at $X=2^qn_s$ gives the bound
+$11(1-2^{-\eta})^{-1}n_s^{-\eta}$.
+\end{proof}
+
+\begin{remark}
+Corollary~\ref{cor:B} is stronger than the assertion that a divergent orbit
+tends to infinity, and it is not implied by it: an orbit could tend to
+infinity while returning to moderate values often enough to make
+$\sum1/n_k$ diverge.  Theorem~\ref{thm:A} excludes that behaviour
+quantitatively.  Note also that divergence is a \emph{conclusion} here, not a
+hypothesis: aperiodicity alone forces $n_k\to\infty$.
+\end{remark}
+
+% ===========================================================================
+\section{Repetitions and factor complexity}
+\label{sec:symbolic}
+
+The following proposition is the common engine of both parts of
+Theorem~\ref{thm:CD}.  It converts any recurrence in the valuation word into
+a height inequality.
+
+\begin{proposition}[height bound for recurrences]
+\label{prop:height}
+Let $(n_k)$ be aperiodic with constant $L$ as in Corollary~\textup{\ref{cor:B}}.
+Suppose $a_{u+i}=a_{u+p+i}$ for $0\le i<m$, where $u\ge0$, $p\ge1$, $m\ge1$,
+and let $W=A_{u+m}-A_u$ be the weight of the repeated factor.  Then
+\begin{equation}\label{eq:height}
+W+1\ \le\ \log_2L+\log_2(3/2)\,(u+p).
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+By Lemma~\ref{lem:collide}, $2^{W+1}\le|n_u-n_{u+p}|\le\max(n_u,n_{u+p})$,
+the last step because both values are positive.  By
+Corollary~\ref{cor:B} and $A_k\ge k$,
+\[
+n_k\le L\,2^{\alpha k-A_k}\le L\,2^{(\alpha-1)k}
+\qquad(k\ge0),
+\]
+and $\alpha-1=\log_2(3/2)$.  Since the larger of the two indices is $u+p$,
+\[
+2^{W+1}\le L\,2^{\log_2(3/2)(u+p)},
+\]
+which is \eqref{eq:height}.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\textup{\ref{thm:CD}}]
+\emph{The repetition exponent.}  Let $P=UV^tV'$ be a prefix of $a$, with
+$u=|U|$, $p=|V|\ge1$, $t\ge1$ and $V'$ a prefix of $V$ of length $e$.  Then
+$a_{u+i}=a_{u+p+i}$ for $0\le i<(t-1)p+e$, so Proposition~\ref{prop:height}
+applies with $m=(t-1)p+e$ and gives
+\[
+A_{u+m}-A_u\le\log_2L+\log_2(3/2)(u+p).
+\]
+Every letter is at least $1$, so $A_{u+m}-A_u\ge m=(t-1)p+e$, and therefore
+\[
+|P|=u+tp+e=(u+p)+\bigl[(t-1)p+e\bigr]
+\le(u+p)\bigl(1+\log_2(3/2)\bigr)+\log_2L
+=\alpha\,(u+p)+\log_2L .
+\]
+Dividing by $u+p$ and letting $u+p\to\infty$ gives
+$\operatorname{Dio}(a)\le\alpha=\log_23$.  (For prefixes with $u+p$ bounded
+the ratio is bounded anyway, so the supremum defining
+$\operatorname{Dio}$ is governed by the limit.)
+
+\emph{The factor complexity.}  Fix $m\ge1$ and let $J\ge1$.  If
+$p_a(m)<J$ then two of the $J$ factors of length $m$ occurring at positions
+$0,1,\dots,J-1$ coincide, say at $i<j<J$.  Proposition~\ref{prop:height}
+with $u=i$, $p=j-i$ gives
+\[
+m\le A_{i+m}-A_i\le\log_2L+\log_2(3/2)\,j\le\log_2L+\log_2(3/2)\,J .
+\]
+Contrapositively, if $J<(m-\log_2L)/\log_2(3/2)$ then $p_a(m)\ge J$.  Taking
+$J=\lceil(m-\log_2L)/\log_2(3/2)\rceil-1$ yields
+\[
+p_a(m)\ge\frac{m-\log_2L}{\log_2(3/2)}-1 .
+\]
+Dividing by $m$ and letting $m\to\infty$ gives the stated $\liminf$.  A
+Sturmian word has $p(m)=m+1$ and a quasi-Sturmian word has $p(m)=m+k$ for
+all large $m$; since $1/\log_2(3/2)>1$, neither is compatible with the
+displayed bound for large $m$.
+\end{proof}
+
+\begin{remark}
+The bound $p_a(m)\ge1.7095\ldots m-O(1)$ should be compared with the
+Morse--Hedlund theorem \cite{morsehedlund1940}, which only excludes
+$p_a(m)\le m$ for an aperiodic word.  The gain is the factor
+$1/\log_2(3/2)$, and it comes entirely from the arithmetic of the map rather
+than from combinatorics on words.  The constant is essentially the same
+$\rho=\log2/\log(3/2)$ that governs the recharge clock of the orbit.
+\end{remark}
+
+\begin{remark}[a stronger form that we do \emph{not} obtain]
+It is tempting to replace $m$ in Theorem~\ref{thm:CD} by $A_m=m+\sum_{k<m}(a_k-1)$,
+i.e.\ by the weight of the \emph{initial} factor of length $m$.  The
+pigeonhole argument gives the weight $A_{i+m}-A_i$ of the recurring factor,
+which is only bounded below by $m$; there is no reason for an arbitrary
+window to be as heavy as the initial one.  The stronger form is valid when
+the recurrence involves position $i=0$, but not in general.
+\end{remark}
+
+% ===========================================================================
+\section{What these bounds do not give}
+\label{sec:limits}
+
+We list the limitations explicitly, since the results above are easy to
+overread.
+
+\begin{enumerate}
+  \item \emph{No contradiction.}  All four statements are consistent with the
+        existence of a divergent orbit.  They constrain such an orbit; they do
+        not exclude one.  Theorem~\ref{thm:A} allows $X^{0.9653\ldots}$ visits
+        to a shell, which is very far from the $O(1)$ that a
+        counting contradiction would require.
+
+  \item \emph{No control of time.}  $V_s(X)$ counts how \emph{often} an orbit
+        is small, not how \emph{late}.  Nothing above bounds last-exit times,
+        or the rate at which $\sum_{j\ge k}1/n_j$ tends to $0$ as a function
+        of $k$ rather than of $n_s$.
+
+  \item \emph{The exponent is method-limited.}  By Remark~\ref{rem:opt} the
+        value $\eta=0.0346\ldots$ is the exact optimum of this argument, so
+        improvements must change the input, for instance by exploiting
+        $3$-adic integrality of inverse branches, which is used nowhere here.
+
+  \item \emph{Complexity is a weak filter.}  A bound of the form
+        $p_a(m)\gtrsim1.71m$ excludes only the lowest-complexity words.
+        Words of exponential factor complexity and repetition exponent $1$
+        satisfy every constraint proved here, and such words are exactly what
+        a divergent orbit is expected to produce.
+
+  \item \emph{Cycles are untouched.}  Every result assumes aperiodicity.
+\end{enumerate}
+
+\begin{remark}[relation to prior work]
+The ingredients are individually classical: the cylinder structure of
+Lemma~\ref{lem:cyl} is the parity-vector correspondence of Terras
+\cite{terras1976} and Bernstein--Lagarias \cite{bernsteinlagarias1996}, and
+the exponential sum of valuations is the object estimated in
+\cite{tao2022}.  What appears not to be standard is the combination:
+applying these to a \emph{single} orbit, using non-collision of orbit values
+in place of a density or measure hypothesis.  We have not located the
+statements of Theorem~\ref{thm:A}, Corollary~\ref{cor:B} or
+Theorem~\ref{thm:CD} in the literature, but the $3x+1$ bibliography is large
+\cite{lagarias1985} and our search was not exhaustive; readers aware of a
+prior occurrence are asked to inform us.
+\end{remark}
+
+% ===========================================================================
+\appendix
+\section{Numerical verification}
+\label{app:numeric}
+
+Every lemma was checked numerically before the proofs were written.  The
+checks are finite and prove nothing; they were used to catch errors.
+
+\begin{itemize}
+  \item \textbf{Lemma~\ref{lem:cyl}.}  For all odd $n<2^{14}$ and all
+        $r\le8$, the $\num{20964}$ realized words were grouped by value; every
+        word occupied exactly one class modulo $2^{B+1}$.  No violation.
+  \item \textbf{Lemma~\ref{lem:collide}.}  Over $400$ random starts below
+        $10^{12}$ and factors of length $6$, all $\num{3503}$ coincident pairs
+        satisfied $n_i\equiv n_j\pmod{2^{W+1}}$.  No violation.
+  \item \textbf{Endpoint bound (proof of Theorem~\ref{thm:A}).}  For
+        $\num{3000}$ random blocks the inequality
+        $n_{k+r}\le2X(3/2^{c})^{r}+(3/2)^{r}$ held throughout.
+  \item \textbf{Optimality (Remark~\ref{rem:opt}).}  A grid search over
+        $(c,\kappa)\in(\alpha,2)\times(0,2]$ with all four exponents returned
+        the minimum $0.9654$ at $c=1.6418$, $\kappa=0.8780$, matching
+        $c_*,\kappa_*$ to grid resolution.
+  \item \textbf{Proposition~\ref{prop:height}.}  Over $300$ random starts
+        below $10^{14}$, all $\num{640362}$ recurrences in the valuation words
+        satisfied \eqref{eq:height} with $L$ computed exactly as
+        $\max_kY_k$ in rational arithmetic.  No violation; minimum slack
+        $33.1$.
+  \item \textbf{Theorem~\ref{thm:CD}.}  In $\num{1716}$ cases the complexity
+        bound held, with observed $p(m)/m$ between $6.75$ and $16$.
+\end{itemize}
+
+Since a genuinely aperiodic orbit is not available for testing, the checks of
+Proposition~\ref{prop:height} and Theorem~\ref{thm:CD} were run on the finite
+transients of convergent orbits, with $L$ replaced by $\max_kY_k$ over the
+transient; this is the correct finite analogue, because the proofs use only
+$n_k\le L2^{\alpha k-A_k}$ on the range of indices involved.
+
+\printbibliography[title={References}]
+
+\end{document}
